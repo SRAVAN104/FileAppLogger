@@ -25,26 +25,11 @@ steps:
    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
    platform: '$(buildPlatform)'
    configuration: '$(buildConfiguration)'
-
-- task: NuGetCommand@2
-  displayName: 'Create NuGet Package'
+- task: ArchiveFiles@2
   inputs:
-      command: 'pack'
-      packagesToPack: '**/$(nugetProjectName).csproj'
-      packDestination: '$(Build.ArtifactStagingDirectory)'
-      versioningScheme: 'byEnvVar'
-      versionEnvVar: 'nugetVersion'
-- task: NuGetCommand@2
-  inputs:
-    command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
-    nuGetFeedType: 'internal'
-    publishVstsFeed: '7e3d1ac4-1114-44b5-b0dc-923c356739d5'
-- task: UniversalPackages@0
-  inputs:
-    command: 'publish'
-    publishDirectory: '$(Build.ArtifactStagingDirectory)'
-    feedsToUsePublish: 'internal'
-    vstsFeedPublish: '7e3d1ac4-1114-44b5-b0dc-923c356739d5'
-    vstsFeedPackagePublish: 'New'
-    versionOption: 'major'
+    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+- task: PublishBuildArtifacts@1
